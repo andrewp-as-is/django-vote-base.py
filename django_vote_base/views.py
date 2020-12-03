@@ -90,6 +90,19 @@ class VoteViewMixin:
             self.create_vote(1)
         return 1
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        vote_obj = self.get_vote_obj()
+        context['vote_obj'] = vote_obj
+        if self.request.user.is_authenticated:
+            try:
+                context['vote'] = self.vote_model.objects.get(
+                    obj_id=vote_obj.id, created_by=self.request.user
+                )
+            except self.vote_model.DoesNotExist:
+                pass
+        return context
+
 
 class VoteActionViewMixin(LoginRequiredMixin, VoteViewMixin):
     vote_model = None
